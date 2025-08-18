@@ -2,14 +2,57 @@ const form = document.getElementById('chat-form');
 const input = document.getElementById('user-input');
 const chatBox = document.getElementById('chat-box');
 
-function appendMessage(sender, text) {
-  const msg = document.createElement('div');
-  msg.classList.add('message', sender);
-  msg.textContent = text;
-  chatBox.appendChild(msg);
+function scrollToBottom() {
   chatBox.scrollTop = chatBox.scrollHeight;
+}
 
-  return msg;
+function createMessageEl(sender, text) {
+  const wrap = document.createElement('div');
+  wrap.className = `msg msg--${sender}`;
+
+  const avatar = document.createElement('div');
+  avatar.className = `avatar avatar--${sender}`;
+  avatar.textContent = sender === 'user' ? 'U' : 'G';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.textContent = text;
+
+  wrap.appendChild(avatar);
+  wrap.appendChild(bubble);
+  return wrap;
+}
+
+function appendMessage(sender, text) {
+  const el = createMessageEl(sender, text);
+  chatBox.appendChild(el);
+  scrollToBottom();
+
+  return el.querySelector('.bubble');
+}
+
+function appendTyping() {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg msg--bot';
+
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar avatar--bot';
+  avatar.textContent = 'G';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+
+  const typing = document.createElement('div');
+  typing.className = 'typing';
+  typing.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+
+  bubble.appendChild(typing);
+  wrap.appendChild(avatar);
+  wrap.appendChild(bubble);
+  chatBox.appendChild(wrap);
+  scrollToBottom();
+
+  return { wrap, bubble };
 }
 
 form.addEventListener('submit', async function (e) {
@@ -21,12 +64,7 @@ form.addEventListener('submit', async function (e) {
   appendMessage('user', userMessage);
   input.value = '';
 
-  // Simulasi dummy balasan bot (placeholder)
-  // setTimeout(() => {
-  //   appendMessage('bot', 'Gemini is thinking... (this is dummy response)');
-  // }, 1000);
-
-  const thinkingMessage = appendMessage('bot', 'Gemini is thinking...');
+  const thinking = appendTyping();
 
   try {
     const response = await fetch('/api/chat', {
@@ -45,28 +83,20 @@ form.addEventListener('submit', async function (e) {
     });
 
     if (!response.ok) {
-      throw new Error('Server error: ${response.status} ${response.statusText}');
+      throw new Error(`Server error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
     
     if (data && data.result) {
-      thinkingMessage.textContent = data.result;
+      thinking.bubble.textContent = data.result;
     } else {
-      thinkingMessage.textContent = 'Sorry, no response received.';
+      thinking.bubble.textContent = 'Sorry, no response received';
     }
   } catch (error) {
     console.error('Failed to get response from server:', error);
-    thinkingMessage.textContent = 'Sorry, something went wrong.';
+    thinking.bubble.textContent = 'Sorry, something went wrong';
   } finally {
-    chatBox.scrollTop = chatBox.scrollHeight;
+    scrollToBottom();
   }
 });
-
-// function appendMessage(sender, text) {
-//   const msg = document.createElement('div');
-//   msg.classList.add('message', sender);
-//   msg.textContent = text;
-//   chatBox.appendChild(msg);
-//   chatBox.scrollTop = chatBox.scrollHeight;
-// }

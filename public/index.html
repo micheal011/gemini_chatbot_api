@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -8,13 +8,28 @@
 </head>
 <body>
   <div class="container">
-    <h1>Gemini AI Chatbot</h1>
-    <div id="chat-box" class="chat-box"></div>
-    <form id="chat-form">
-      <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" required />
-      <button type="submit">Send</button>
+    <header class="chat-header">
+      <div class="brand">
+        <div class="brand__dot"></div>
+        <h1>Gemini AI Chatbot</h1>
+      </div>
+    </header>
+
+    <main id="chat-box" class="chat-box" aria-live="polite" aria-label="Kotak percakapan">
+    </main>
+
+    <form id="chat-form" class="chat-form" autocomplete="off">
+      <input
+        type="text"
+        id="user-input"
+        placeholder="Tulis pesanmu..."
+        aria-label="Ketik pesan"
+        required
+      />
+      <button type="submit" aria-label="Kirim">Send</button>
     </form>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
